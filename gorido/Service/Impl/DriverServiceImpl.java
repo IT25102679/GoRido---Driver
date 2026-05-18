@@ -4,8 +4,10 @@ import com.example.gorido.DTO.DriverRegisterRequest;
 import com.example.gorido.Model.*;
 import com.example.gorido.Repository.*;
 import com.example.gorido.Service.DriverService;
+import jakarta.mail.Multipart;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -21,17 +23,33 @@ public class DriverServiceImpl implements DriverService {
     private final StatusRepository statusRepository;
     private final ActiveRepository activeRepository;
     private final DriverRepository driverRepository;
+    private final VehicleTypeRepository vehicleTypeRepository;
+    private final VehicleColorRepository vehicleColorRepository;
+    private final VehicleBrandRepository vehicleBrandRepository;
+    private final TypeHasBrandRepository typeHasBrandRepository;
+    private final VehicleRepository vehicleRepository;
     private final TypeRepository typeRepository;
     private final DistrictRepository districtRepository;
+    private final HireRepository hireRepository;
 
     public DriverServiceImpl(UserRepository userRepository, StatusRepository statusRepository, ActiveRepository activeRepository,
-                             DriverRepository driverRepository, TypeRepository typeRepository, DistrictRepository districtRepository){
+                             VehicleTypeRepository vehicleTypeRepository,
+                             VehicleColorRepository vehicleColorRepository, VehicleBrandRepository vehicleBrandRepository,
+                             TypeHasBrandRepository typeHasBrandRepository, DriverRepository driverRepository,
+                             VehicleRepository vehicleRepository, TypeRepository typeRepository, DistrictRepository districtRepository,
+                             HireRepository hireRepository){
         this.userRepository = userRepository;
+        this.vehicleBrandRepository = vehicleBrandRepository;
+        this.vehicleColorRepository = vehicleColorRepository;
+        this.vehicleTypeRepository = vehicleTypeRepository;
+        this.typeHasBrandRepository = typeHasBrandRepository;
         this.driverRepository = driverRepository;
         this.statusRepository = statusRepository;
         this.activeRepository = activeRepository;
+        this.vehicleRepository = vehicleRepository;
         this.typeRepository = typeRepository;
         this.districtRepository = districtRepository;
+        this.hireRepository = hireRepository;
     }
 
     public String loadUser(HttpSession session){
@@ -67,12 +85,10 @@ public class DriverServiceImpl implements DriverService {
     }
 
     public String registerDriver(DriverRegisterRequest request){
-        /*User part
         User user = userRepository.findByEmail(request.getEmail()).orElse(null);
         if (user == null){
             return "User not Found";
-        }*/
-
+        }
         Optional<Driver> activeDriver = driverRepository.findByUserId(user);
         if (activeDriver.isPresent()) {
             return "You already have a driver account";
@@ -147,5 +163,142 @@ public class DriverServiceImpl implements DriverService {
         file.transferTo(saveFile);
 
         return fileName;
+    }
+
+    public String driverProfile(Model model, HttpSession session) {
+
+        String email = (String) session.getAttribute("userEmail");
+
+        if (email == null) {
+            return "redirect:/signin";
+        }
+
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (user == null) {
+            return "redirect:/signin";
+        }
+
+        Driver driver = driverRepository.findByUserId(user).orElse(null);
+        if (driver == null){
+            return "redirect:/driverregi";
+        }
+
+        List<Hire> hires = hireRepository.findByDriverId(driver.getId());
+
+        double totalFare = hires.stream()
+                .mapToDouble(Hire::getTotal_fare)
+                .sum();
+
+        double totalDistance = hires.stream()
+                .mapToDouble(Hire::getDistance)
+                .sum();
+
+        List<Vehicle> vehicleList = driver.getVehicles();
+        List<Hire> latestHires = hireRepository.findTop3ByUserId(user.getId())
+                .stream()
+                .limit(3)
+                .toList();
+
+        model.addAttribute("user", user);
+        model.addAttribute("driver", driver);
+        model.addAttribute("vehicles", vehicleList);
+        model.addAttribute("hires", hires);
+        model.addAttribute("totalFare", totalFare);
+        model.addAttribute("totalDistance", totalDistance);
+        model.addAttribute("latestHires", latestHires);
+        model.addAttribute("activePage", "profile");
+
+        return "driverprofile";
+    }
+
+    public String deleteDriver(HttpSession session) {
+
+        String email = (String) session.getAttribute("userEmail");
+        if (email == null) return "Session expired";
+
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) return "User not found";
+
+        Driver driver = user.getDriver();
+
+        if (driver == null){
+            return "Driver not found";
+        }
+
+        if (driver != null) {
+
+            deleteFile(driver.getNic_image(), "driver/personal/nic");
+            deleteFile(driver.getLicense_image(), "driver/personal/license");
+
+            for (Vehicle v : driver.getVehicles()) {
+                deleteFile(v.getInsurance_photo(), "driver/vehicle/isuarance");
+                deleteFile(v.getVehicle_book(), "driver/vehicle/book");
+                deleteFile(v.getVehicle_photo(), "driver/vehicle/vehicle_images");
+            }
+        }
+
+        Optional<Type> userType = typeRepository.findById(1);
+        if (userType.isEmpty()){
+            return "error: User type not found";
+        }
+
+        user.setTypeId(userType.get());
+        user.setDriver(null);
+        userRepository.save(user);
+        driverRepository.delete(driver);
+
+        return "success";
+    }
+
+    private void deleteFile(String fileName, String folder) {
+
+        if (fileName == null) return;
+
+        String basePath = "J:/New folder/GoRido/images/";
+
+        File file = new File(basePath + folder + "/" + fileName);
+
+        if (file.exists()) {
+            file.delete();
+        }
+    }
+
+    public String updatelicense(LocalDate license_exp_date, MultipartFile licenseImage, HttpSession session){
+        String email = (String) session.getAttribute("userEmail");
+        if (email == null) return "Session expired";
+
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) return "User not found";
+
+        Driver driver = user.getDriver();
+
+        if (driver == null){
+            return "Driver not found";
+        }
+
+        int driverId = driver.getId();
+        String basePath = "J:/New folder/GoRido/images/";
+        String folder = "driver/personal/license/";
+
+        try {
+            deleteFile(driver.getLicense_image(), folder);
+
+            String licensePath = saveFile(
+                    licenseImage,
+                    basePath + folder,
+                    driverId + "_license.jpg"
+            );
+
+            driver.setLicense_exp_date(license_exp_date);
+            driver.setLicense_image(licensePath);
+
+            driverRepository.save(driver);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("File upload failed: " + e.getMessage());
+        }
+        return "success";
     }
 }

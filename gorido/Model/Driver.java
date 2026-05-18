@@ -9,7 +9,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "driver")
-public class Driver {
+public class Driver{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -136,6 +136,10 @@ public class Driver {
 
     @OneToMany(mappedBy = "driverId", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Vehicle> vehicles;
+
+    public void setVehicles(List<Vehicle> vehicles) {
+        this.vehicles = vehicles;
+    }
 
     public List<Vehicle> getVehicles() {
         return vehicles;

@@ -1,0 +1,1124 @@
+<!doctype html>
+
+<html lang="en" class="dark" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>User Dashboard | GoRido</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+
+        tailwind.config = { darkMode: "class" };
+
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap"
+          rel="stylesheet" />
+
+    <style> h1, h2, h3, h4,
+
+        .brand {
+
+          font-family: "Outfit", sans-serif;
+
+        }
+
+
+
+        .glass {
+
+          background: rgba(15, 23, 42, 0.72);
+
+          backdrop-filter: blur(18px);
+
+        }
+        .file-drop {
+            border: 2px dashed #475569;
+            transition: border-color 0.2s;
+        }
+        .file-drop:hover, .file-drop.dragover {
+            border-color: #facc15;
+        }
+        .file-drop input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+
+</head>
+
+<body class="min-h-screen bg-zinc-100 dark:bg-zinc-950 text-zinc-800 dark:text-white">
+
+<div class="min-h-screen flex">
+
+    <!-- Sidebar -->
+
+    <div th:replace="~{sidebar :: sidebar}"></div>
+
+    <!-- Main Area -->
+
+    <main class="flex-1 lg:ml-72">
+
+        <!-- Top Bar -->
+
+        <header
+                class="sticky top-0 z-40 bg-white/80 dark:bg-zinc-950/80 backdrop-blur border-b border-zinc-200 dark:border-zinc-800">
+
+            <div class="px-5 sm:px-8 py-4 flex items-center justify-between">
+
+                <div>
+
+                    <h2 class="text-xl sm:text-2xl font-bold">User Profile</h2>
+
+                    <p class="text-sm text-zinc-500 dark:text-zinc-400">
+                        Welcome back, <span class="capitalize" th:text="${user.first_name}"></span> 👋
+                    </p>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <section class="p-5 sm:p-8 space-y-8">
+
+            <div class="flex items-center justify-between w-full">
+
+                <!-- Breadcrumbs (LEFT) -->
+                <nav class="text-xs text-zinc-400 dark:text-zinc-500 flex items-center flex-wrap">
+                    <a href="/userprofile" class="hover:text-yellow-400 transition">Home</a>
+
+                    <span class="mx-2">/</span>
+
+                    <span class="text-zinc-300 dark:text-zinc-200 font-medium">
+                        User Profile
+                    </span>
+                </nav>
+
+            </div>
+
+            <!-- Profile Hero -->
+
+            <div
+                    class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900 p-6 sm:p-8 shadow-xl">
+
+                <div
+                        class="absolute top-0 right-0 w-72 h-72 bg-yellow-400/20 rounded-full blur-3xl"></div>
+
+                <div
+                        class="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+
+                    <div class="flex items-center gap-5">
+
+                        <img
+                                th:src="${user.gender_id.id == 1} ?
+        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80'
+        :
+        'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80'"
+                                class="w-24 h-24 rounded-3xl object-cover border-4 border-yellow-400 shadow-lg"
+                                alt="Profile Photo" />
+
+                        <div>
+
+                  <span
+                          class="inline-block px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-400 text-xs font-semibold mb-2">
+
+                    Verified Driver
+
+                  </span>
+
+                            <span th:if="${vehicles != null and vehicles.size() >= 1}"
+                                  class="inline-block px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-xs font-semibold mb-2">
+                                Activated
+                            </span>
+
+                            <span th:if="${vehicles == null or vehicles.size() < 1}"
+                                  class="inline-block px-3 py-1 rounded-full bg-red-500/20 text-red-400 text-xs font-semibold mb-2">
+                                    Not Activated
+                            </span>
+
+                            <h1 class="text-3xl font-extrabold text-white">
+
+                                <span class="capitalize" th:text="${user.first_name}"></span> <span class="capitalize" th:text="${user.last_name}"></span>
+
+                            </h1>
+
+                            <p th:text="${user.email}" class="text-zinc-300 text-sm mt-1"></p>
+
+                            <p th:text="${user.mobile_number}" class="text-zinc-400 text-sm mt-1"></p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Recent Rides -->
+
+            <div th:if="${driver.license_exp_date != null
+        and driver.license_exp_date.isBefore(T(java.time.LocalDate).now())}" class="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-3xl p-6 shadow-lg">
+
+                <div class="flex items-start justify-between gap-6">
+
+                    <div class="flex items-start gap-4">
+
+                        <!-- ICON -->
+                        <div class="w-12 h-12 rounded-2xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                 class="w-6 h-6 text-red-600 dark:text-red-400"
+                                 fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor"
+                                 stroke-width="2">
+
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M12 9v4m0 4h.01M10.29 3.86l-8.3 14.39A1.5 1.5 0 0 0 3.3 20h17.4a1.5 1.5 0 0 0 1.31-2.25l-8.3-14.39a1.5 1.5 0 0 0-2.62 0z"/>
+                            </svg>
+                        </div>
+
+                        <!-- TEXT -->
+                        <div>
+                            <h3 class="text-lg font-bold text-red-700 dark:text-red-300">
+                                License Expired
+                            </h3>
+
+                            <p class="text-sm text-red-600/80 dark:text-red-300/70 mt-1">
+                                Your driving license has expired. Please update it immediately to continue receiving ride requests.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <!-- ACTION BUTTON -->
+                    <button onclick="openModalUpdateExp()"
+                       class="shrink-0 px-5 py-3 rounded-2xl
+                  bg-red-600 hover:bg-red-500
+                  text-white font-semibold text-sm
+                  shadow-md hover:shadow-lg
+                  transition-all duration-200">
+
+                        Update Now
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div class="bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-lg border border-zinc-200 dark:border-zinc-800">
+
+                <div class="flex items-center justify-between">
+
+                    <div>
+
+                        <h3 class="text-xl font-bold">Vehicle Data</h3>
+
+                        <p class="text-sm text-zinc-500">
+
+                            Latest passenger ride activity
+
+                        </p>
+
+                    </div>
+
+                    <a href="/managevehicle" class="text-sm font-semibold text-yellow-500">Manage
+                        All</a>
+
+                </div>
+
+            </div>
+
+            <!-- ── Stats ── -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="card-hover bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-lg border border-zinc-200 dark:border-zinc-800">
+                    <p class="text-sm text-zinc-500">Total Rides</p>
+                    <h3 class="text-3xl font-extrabold mt-2"
+                        th:text="${hires != null ? #lists.size(hires) : 0}">
+                    </h3>
+                </div>
+                <div class="card-hover bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-lg border border-zinc-200 dark:border-zinc-800">
+                    <p class="text-sm text-zinc-500">Total Earned</p>
+                    <h3 class="text-3xl font-extrabold mt-2">
+                        Rs <span th:text="${#numbers.formatDecimal(totalFare / 1000, 1, 1)}"></span>k
+                    </h3>
+                    <p class="text-xs text-yellow-500 mt-2">GoRido payouts</p>
+                </div>
+                <div class="card-hover bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-lg border border-zinc-200 dark:border-zinc-800">
+                    <p class="text-sm text-zinc-500">Total Distance</p>
+                    <h3 class="text-3xl font-extrabold mt-2"
+                        th:text="${totalDistance >= 1000 ? #numbers.formatDecimal(totalDistance / 1000, 1, 1) + 'k KM' : totalDistance + ' KM'}">
+                    </h3>
+                    <p class="text-xs text-zinc-500 mt-2">Across Sri Lanka</p>
+                </div>
+                <div class="card-hover bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-lg border border-zinc-200 dark:border-zinc-800">
+                    <p class="text-sm text-zinc-500">Vehicles</p>
+                    <h3 th:text="${vehicles != null ? #lists.size(vehicles) : 0}" class="text-3xl font-extrabold mt-2"></h3>
+                </div>
+            </div>
+
+            <!-- Content Grid -->
+
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+                <!-- Personal Info -->
+
+                <div class="xl:col-span-2 bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-lg border border-zinc-200 dark:border-zinc-800">
+
+                    <div class="flex items-center justify-between mb-6">
+
+                        <div>
+
+                            <h3 class="text-xl font-bold">Personal Information</h3>
+
+                            <p class="text-sm text-zinc-500">Your account details</p>
+
+                        </div>
+
+                        <button onclick="openModalUpdate()"
+                                class="px-4 py-2 rounded-xl border border-zinc-300 dark:border-zinc-700 text-sm">
+
+                            Update
+
+                        </button>
+
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                        <div class="p-4 rounded-2xl bg-zinc-100 dark:bg-zinc-800">
+
+                            <p class="text-xs text-zinc-500 uppercase">First Name</p>
+
+                            <h4 th:text="${user.first_name}" class="font-semibold mt-1 capitalize"></h4>
+
+                        </div>
+
+                        <div class="p-4 rounded-2xl bg-zinc-100 dark:bg-zinc-800">
+
+                            <p class="text-xs text-zinc-500 uppercase">Last Name</p>
+
+                            <h4 th:text="${user.last_name}" class="font-semibold mt-1 capitalize"></h4>
+
+                        </div>
+
+                        <div class="p-4 rounded-2xl bg-zinc-100 dark:bg-zinc-800">
+
+                            <p class="text-xs text-zinc-500 uppercase">Email</p>
+
+                            <h4 th:text="${user.email}" class="font-semibold mt-1"></h4>
+
+                        </div>
+
+                        <div class="p-4 rounded-2xl bg-zinc-100 dark:bg-zinc-800">
+
+                            <p class="text-xs text-zinc-500 uppercase">Mobile</p>
+
+                            <h4 th:text="${user.mobile_number}" class="font-semibold mt-1"></h4>
+
+                        </div>
+
+                        <div class="p-4 rounded-2xl bg-zinc-100 dark:bg-zinc-800">
+
+                            <p class="text-xs text-zinc-500 uppercase">Gender</p>
+
+                            <h4 th:text="${user.gender_id.name}" class="font-semibold mt-1"></h4>
+
+                        </div>
+
+                        <div class="p-4 rounded-2xl bg-zinc-100 dark:bg-zinc-800">
+
+                            <p class="text-xs text-zinc-500 uppercase">Type</p>
+
+                            <h4 th:text="${user.typeId.name}" class="font-semibold mt-1 capitalize"></h4>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Driver Information Header -->
+                    <div class="flex items-center justify-between mt-5 mb-6">
+
+                        <div>
+                            <h3 class="text-xl font-bold">Driver Information</h3>
+                            <p class="text-sm text-zinc-500">Your driving profile details</p>
+                        </div>
+
+                    </div>
+
+                    <!-- Driver Fields -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                        <!-- NIC Number -->
+                        <div class="p-4 rounded-2xl bg-zinc-100 dark:bg-zinc-800">
+                            <p class="text-xs text-zinc-500 uppercase">NIC Number</p>
+                            <h4 th:text="${driver.nic_number}" class="font-semibold mt-1"></h4>
+                        </div>
+
+                        <!-- License Number -->
+                        <div class="p-4 rounded-2xl bg-zinc-100 dark:bg-zinc-800">
+                            <p class="text-xs text-zinc-500 uppercase">License Number</p>
+                            <h4 th:text="${driver.license_number}" class="font-semibold mt-1"></h4>
+                        </div>
+
+                        <!-- License Expiry Date -->
+                        <div class="p-4 rounded-2xl mt-1"
+                             th:classappend="${driver.license_exp_date != null and driver.license_exp_date < T(java.time.LocalDate).now()}
+        ? ' bg-red-100 dark:bg-red-900/30 border border-red-500/40'
+        : ' bg-zinc-100 dark:bg-zinc-800'">
+
+                            <p class="text-xs text-zinc-500 uppercase">License Expiry Date</p>
+
+                            <h4 th:text="${driver.license_exp_date}" class="font-semibold mt-1"></h4>
+
+                        </div>
+
+                        <!-- Experience -->
+                        <div class="p-4 rounded-2xl bg-zinc-100 dark:bg-zinc-800">
+                            <p class="text-xs text-zinc-500 uppercase">Experience</p>
+                            <h4 th:text="${driver.experience}" class="font-semibold mt-1"></h4>
+                        </div>
+
+                        <!-- Registered Date -->
+                        <div class="p-4 rounded-2xl bg-zinc-100 dark:bg-zinc-800">
+                            <p class="text-xs text-zinc-500 uppercase">Registered Date</p>
+                            <h4 th:text="${driver.registered_date}" class="font-semibold mt-1"></h4>
+                        </div>
+
+                        <!-- District -->
+                        <div class="p-4 rounded-2xl bg-zinc-100 dark:bg-zinc-800">
+                            <p class="text-xs text-zinc-500 uppercase">District</p>
+                            <h4 th:text="${driver.district.name}" class="font-semibold mt-1"></h4>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-lg border border-zinc-200 dark:border-zinc-800">
+
+                    <!-- Header -->
+                    <h3 class="text-xl font-bold">Security</h3>
+                    <p class="text-sm text-zinc-500 mb-6">Manage account safety</p>
+
+                    <div class="space-y-6">
+
+                        <!-- Password Section -->
+                        <div class="p-4 rounded-2xl bg-zinc-100 dark:bg-zinc-800">
+                            <p class="font-semibold">Password</p>
+                            <p class="text-xs text-zinc-500 mt-1">
+                                Account password protected
+                            </p>
+
+                            <button onclick="openModal()"
+                                    class="mt-3 text-sm text-yellow-500 font-semibold hover:underline">
+                                Change Password
+                            </button>
+                        </div>
+
+                        <!--  Documents Section -->
+                        <div>
+                            <h4 class="text-lg font-semibold">Documents</h4>
+                            <p class="text-xs text-zinc-500 mb-3">
+                                Manage your uploaded verification files
+                            </p>
+
+                            <div class="p-4 rounded-2xl bg-zinc-100 dark:bg-zinc-800 space-y-2">
+
+                                <!-- LICENSE -->
+                                <div class="group relative overflow-hidden rounded-2xl border border-zinc-200/70 dark:border-white/10
+            bg-white/70 dark:bg-zinc-900/60 backdrop-blur-xl
+            p-4 transition-all duration-300
+            hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-500/10">
+
+                                    <div class="flex items-center gap-4">
+
+                                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl
+                    bg-blue-500/10 text-blue-500 ring-1 ring-blue-500/20">
+
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                 class="h-6 w-6"
+                                                 fill="none"
+                                                 viewBox="0 0 24 24"
+                                                 stroke="currentColor"
+                                                 stroke-width="1.8">
+
+                                                <path stroke-linecap="round"
+                                                      stroke-linejoin="round"
+                                                      d="M3 7.5A2.5 2.5 0 015.5 5h13A2.5 2.5 0 0121 7.5v9A2.5 2.5 0 0118.5 19h-13A2.5 2.5 0 013 16.5v-9z"/>
+
+                                                <path stroke-linecap="round"
+                                                      stroke-linejoin="round"
+                                                      d="M7 9h5m-5 3h3"/>
+                                            </svg>
+                                        </div>
+
+                                        <div class="flex-1 min-w-0">
+
+                                            <p class="text-sm font-semibold text-zinc-800 dark:text-white">
+                                                License Image
+                                            </p>
+
+                                            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                                                Driving License Document
+                                            </p>
+                                        </div>
+
+                                        <div class="flex items-center gap-1 rounded-full
+                    bg-emerald-500/10 px-3 py-1.5
+                    text-emerald-500 text-xs font-semibold">
+
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                 class="h-4 w-4"
+                                                 fill="none"
+                                                 viewBox="0 0 24 24"
+                                                 stroke="currentColor"
+                                                 stroke-width="2">
+
+                                                <path stroke-linecap="round"
+                                                      stroke-linejoin="round"
+                                                      d="M5 13l4 4L19 7"/>
+                                            </svg>
+
+                                            Verified
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="group relative overflow-hidden rounded-2xl border border-zinc-200/70 dark:border-white/10
+            bg-white/70 dark:bg-zinc-900/60 backdrop-blur-xl
+            p-4 transition-all duration-300
+            hover:-translate-y-1 hover:shadow-2xl hover:shadow-purple-500/10">
+
+                                    <div class="flex items-center gap-4">
+
+                                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl
+                    bg-purple-500/10 text-purple-500 ring-1 ring-purple-500/20">
+
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                 class="h-6 w-6"
+                                                 fill="none"
+                                                 viewBox="0 0 24 24"
+                                                 stroke="currentColor"
+                                                 stroke-width="1.8">
+
+                                                <path stroke-linecap="round"
+                                                      stroke-linejoin="round"
+                                                      d="M15 9h.01M6 19h12a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+
+                                                <path stroke-linecap="round"
+                                                      stroke-linejoin="round"
+                                                      d="M4 15l4-4a2 2 0 012.828 0L15 15"/>
+                                            </svg>
+                                        </div>
+
+                                        <div class="flex-1 min-w-0">
+
+                                            <p class="text-sm font-semibold text-zinc-800 dark:text-white">
+                                                NIC Image
+                                            </p>
+
+                                            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                                                National Identity Card
+                                            </p>
+                                        </div>
+
+                                        <div class="flex items-center gap-1 rounded-full
+                    bg-emerald-500/10 px-3 py-1.5
+                    text-emerald-500 text-xs font-semibold">
+
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                 class="h-4 w-4"
+                                                 fill="none"
+                                                 viewBox="0 0 24 24"
+                                                 stroke="currentColor"
+                                                 stroke-width="2">
+
+                                                <path stroke-linecap="round"
+                                                      stroke-linejoin="round"
+                                                      d="M5 13l4 4L19 7"/>
+                                            </svg>
+
+                                            Verified
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Recent Rides -->
+
+            <div
+                    class="bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-lg border border-zinc-200 dark:border-zinc-800">
+
+                <div class="flex items-center justify-between mb-6">
+
+                    <div>
+
+                        <h3 class="text-xl font-bold">Recent Rides</h3>
+
+                        <p class="text-sm text-zinc-500">
+
+                            Latest passenger ride activity
+
+                        </p>
+
+                    </div>
+
+                    <a href="myBookings" class="text-sm font-semibold text-yellow-500">View
+                        All</a>
+
+                </div>
+
+                <div class="space-y-4">
+
+                    <div th:each="h : ${latestHires}"
+                         class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl bg-zinc-100 dark:bg-zinc-800">
+
+                        <!-- LEFT SIDE -->
+                        <div>
+
+                            <h4 class="font-semibold"
+                                th:text="${h.pickup_location + ' → ' + h.drop_location}">
+                            </h4>
+
+                            <p class="text-sm text-zinc-500">
+                                <span th:text="${#temporals.format(h.starting_at, 'dd MMM yyyy')}"></span>
+                                ·
+                                <span th:text="${h.distance + ' km'}"></span>
+                            </p>
+
+                        </div>
+
+                        <!-- RIGHT SIDE -->
+                        <div class="flex items-center gap-4">
+
+        <span
+                th:text="${h.hireStatus.name}"
+                class="px-3 py-1 rounded-full text-xs font-semibold">
+
+        </span>
+
+                            <p class="font-bold"
+                               th:text="${'Rs ' + h.total_fare}">
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-lg border border-red-300 dark:border-red-700">
+
+                <!-- Header -->
+                <div class="mb-6">
+                    <h3 class="text-xl font-bold text-red-600">Danger Zone</h3>
+                    <p class="text-sm text-zinc-500">
+                        Irreversible actions
+                    </p>
+                </div>
+
+                <div class="p-4 rounded-2xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-500/10 mb-4">
+
+                    <div class="flex items-center justify-between">
+
+                        <div>
+                            <p class="text-sm font-semibold text-red-600 dark:text-red-300">
+                                Delete Full Account
+                            </p>
+
+                            <p class="text-xs text-zinc-600 dark:text-zinc-300">
+                                Permanently deletes user, driver, vehicles and all related data
+                            </p>
+                        </div>
+
+                        <button onclick="openDeleteModal()"
+                                class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-sm">
+                            Delete Account
+                        </button>
+
+                    </div>
+
+                    <p class="text-xs text-zinc-500 mt-3">
+                        ⚠ This action cannot be undone
+                    </p>
+
+                </div>
+
+                <div class="p-4 rounded-2xl border border-red-200 dark:border-red-800 bg-white dark:bg-zinc-900">
+
+                    <div class="flex items-center justify-between">
+
+                        <div>
+                            <p class="text-sm font-semibold text-zinc-800 dark:text-white">
+                                Delete Driver Account
+                            </p>
+
+                            <p class="text-xs text-zinc-500">
+                                Removes driver profile and linked vehicles only
+                            </p>
+                        </div>
+
+                        <button onclick="openDriverDeleteModal()"
+                                class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-sm">
+                            Delete Driver
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+<!-- update Password Modal -->
+<div id="reset-modal"
+     class="hidden fixed inset-0 z-50 flex items-center justify-center">
+
+    <!-- Bg Blur -->
+    <div id="modal-overlay"
+         class="absolute inset-0 bg-black/60 backdrop-blur-sm">
+    </div>
+
+    <!-- MODAL -->
+    <div id="modal-box"
+         class="relative w-full max-w-md mx-4 rounded-3xl shadow-2xl
+                bg-white/90 dark:bg-zinc-800/90 backdrop-blur-xl
+                border border-white/20 dark:border-zinc-700
+                p-7 opacity-0 scale-95 transition-all duration-300">
+
+        <div class="flex items-center justify-between mb-6">
+
+            <div>
+                <h3 class="text-2xl font-bold text-zinc-800 dark:text-white">
+                    Reset Password
+                </h3>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">
+                    Secure account recovery
+                </p>
+            </div>
+
+            <button onclick="closeModal()"
+                    class="w-9 h-9 flex items-center justify-center rounded-full
+                           hover:bg-red-100 dark:hover:bg-red-500/20
+                           text-zinc-500 hover:text-red-500 transition">
+                ✕
+            </button>
+        </div>
+
+        <form class="space-y-4">
+            <!-- Old Password -->
+            <div>
+                <label class="text-sm text-zinc-600 dark:text-zinc-300">
+                    Confirm Password
+                </label>
+                <input type="password" id="oldpassword"
+                       class="w-full px-4 py-3 border border-transparent rounded-lg bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                       placeholder="Old password">
+            </div>
+
+            <!-- New Password -->
+            <div>
+                <label class="text-sm text-zinc-600 dark:text-zinc-300">
+                    New Password
+                </label>
+                <input type="password" id="newpassword"
+                       class="w-full px-4 py-3 border border-transparent rounded-lg bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                       placeholder="Enter new password">
+            </div>
+
+            <!-- Confirm Password -->
+            <div>
+                <label class="text-sm text-zinc-600 dark:text-zinc-300">
+                    Confirm Password
+                </label>
+                <input type="password" id="confirmpassword"
+                       class="w-full px-4 py-3 border border-transparent rounded-lg bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                       placeholder="Confirm password">
+            </div>
+
+            <p id="modelmsg"class="text-sm text-center hidden mt-3 text-red-600"></p>
+
+            <div class="flex gap-3 pt-4">
+
+                <button type="button"
+                        onclick="closeModal()"
+                        class="w-1/3 py-2 text-sm font-bold text-red-500
+                               hover:text-red-500 hover:underline transition">
+                    Cancel
+                </button>
+
+                <button th:attr="data-email=${user.email}" type="button"
+                        onclick="saveNewPassword(this)"
+                        class="w-2/3 py-3 font-semibold text-black
+                               bg-gradient-to-r from-yellow-400 to-yellow-300
+                               rounded-xl shadow-md">
+                    Update Password
+                </button>
+
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<!-- update user Modal -->
+<div id="user-modal"
+     class="hidden fixed inset-0 z-50 flex items-center justify-center">
+
+    <!-- Bg Blur -->
+    <div id="modal-overlay1"
+         class="absolute inset-0 bg-black/60 backdrop-blur-sm">
+    </div>
+
+    <!-- MODAL -->
+    <div id="modal-box1"
+         class="relative w-full max-w-md mx-4 rounded-3xl shadow-2xl
+                bg-white/90 dark:bg-zinc-800/90 backdrop-blur-xl
+                border border-white/20 dark:border-zinc-700
+                p-7 opacity-0 scale-95 transition-all duration-300">
+
+        <div class="flex items-center justify-between mb-6">
+
+            <div>
+                <h3 class="text-2xl font-bold text-zinc-800 dark:text-white">
+                    Update user
+                </h3>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">
+                    Secure account update
+                </p>
+            </div>
+
+            <button onclick="closeModalUpdate()"
+                    class="w-9 h-9 flex items-center justify-center rounded-full
+                           hover:bg-red-100 dark:hover:bg-red-500/20
+                           text-zinc-500 hover:text-red-500 transition">
+                ✕
+            </button>
+        </div>
+
+        <form class="space-y-4">
+            <!-- First Name -->
+            <div>
+                <label class="text-sm text-zinc-600 dark:text-zinc-300">
+                    First name
+                </label>
+                <input th:value="${user.first_name}" type="text" id="fname"
+                       class="w-full px-4 py-3 border border-transparent rounded-lg bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                       placeholder="Enter first name">
+            </div>
+
+            <!-- Last Name -->
+            <div>
+                <label class="text-sm text-zinc-600 dark:text-zinc-300">
+                    Last name
+                </label>
+                <input th:value="${user.last_name}" type="text" id="lname"
+                       class="w-full px-4 py-3 border border-transparent rounded-lg bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                       placeholder="Enter last name">
+            </div>
+
+            <!-- Email -->
+            <div>
+                <label class="text-sm text-zinc-600 dark:text-zinc-300">
+                    Email
+                </label>
+                <input th:value="${user.email}" type="text" id="email"
+                       class="w-full px-4 py-3 border border-transparent rounded-lg bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                       placeholder="Enter email">
+            </div>
+
+            <!-- Mobile -->
+            <div>
+                <label class="text-sm text-zinc-600 dark:text-zinc-300">
+                    Mobile
+                </label>
+                <input th:value="${user.mobile_number}" type="text" id="mobile"
+                       class="w-full px-4 py-3 border border-transparent rounded-lg bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                       placeholder="Enter mobile">
+            </div>
+
+            <p id="modelmsg2"class="text-sm text-center hidden mt-3 text-red-600"></p>
+
+            <div class="flex gap-3 pt-4">
+
+                <button type="button"
+                        onclick="closeModalUpdate()"
+                        class="w-1/3 py-2 text-sm font-bold text-red-500
+                               hover:text-red-500 hover:underline transition">
+                    Cancel
+                </button>
+
+                <button type="button"
+                        onclick="updateUser()"
+                        class="w-2/3 py-3 font-semibold text-black
+                               bg-gradient-to-r from-yellow-400 to-yellow-300
+                               rounded-xl shadow-md">
+                    Update User
+                </button>
+
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<!-- update driver exp -->
+<div id="driver-modal"
+     class="hidden fixed inset-0 z-50 flex items-center justify-center">
+
+    <!-- Bg Blur -->
+    <div id="modal-overlay2"
+         class="absolute inset-0 bg-black/60 backdrop-blur-sm">
+    </div>
+
+    <!-- MODAL -->
+    <div id="modal-box2"
+         class="relative w-full max-w-md mx-4 rounded-3xl shadow-2xl
+                bg-white/90 dark:bg-zinc-900 backdrop-blur-xl
+                border border-white/20 dark:border-zinc-700
+                p-7 opacity-0 scale-95 transition-all duration-300">
+
+        <div class="flex items-center justify-between mb-6">
+
+            <div>
+                <h3 class="text-2xl font-bold text-zinc-800 dark:text-white">
+                    Update License
+                </h3>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">
+                    Secure License update
+                </p>
+            </div>
+
+            <button onclick="closeModalUpdateExp()"
+                    class="w-9 h-9 flex items-center justify-center rounded-full
+                           hover:bg-red-100 dark:hover:bg-red-500/20
+                           text-zinc-500 hover:text-red-500 transition">
+                ✕
+            </button>
+        </div>
+
+        <form class="space-y-4">
+            <div>
+                <label class="block mb-1 text-sm text-zinc-600 dark:text-zinc-300">License
+                    Expiry Date</label>
+                <input id="expire_date" type="date"
+                       class="w-full px-4 py-3 border border-transparent rounded-lg bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-yellow-400">
+            </div>
+
+            <div>
+                <label
+                        class="block mb-1 text-sm text-zinc-600 dark:text-zinc-300">NIC
+                    Image</label>
+                <div
+                        class="file-drop relative rounded-lg bg-zinc-200 dark:bg-zinc-800 overflow-hidden"
+                        id="wrap-nic">
+                    <input type="file" accept="image/*"
+                           onchange="previewFile(this,'prev-nic','wrap-nic')">
+                    <div
+                            class="flex flex-col items-center justify-center py-5 px-3 text-center"
+                            id="label-nic">
+                        <svg class="w-7 h-7 text-zinc-400 mb-1"
+                             fill="none" stroke="currentColor"
+                             viewBox="0 0 24 24">
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="1.8"
+                                  d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c0 1.657 1.343 3 3 3s3-1.343 3-3" />
+                        </svg>
+                        <span
+                                class="text-xs text-zinc-500 dark:text-zinc-400">Click
+                                        or drag to upload</span>
+                    </div>
+                    <img id="prev-nic"
+                         class="hidden w-full h-24 object-cover" alt>
+                </div>
+            </div>
+
+            <p id="licensemodelmsg" class="text-sm text-center hidden mt-3 text-red-600"></p>
+
+            <div class="flex gap-3 pt-4">
+
+                <button type="button"
+                        onclick="closeModalUpdateExp()"
+                        class="w-1/3 py-2 text-sm font-bold text-red-500
+                               hover:text-red-500 hover:underline transition">
+                    Cancel
+                </button>
+
+                <button type="button"
+                        onclick="updateLicense()"
+                        class="w-2/3 py-3 font-semibold text-black
+                               bg-gradient-to-r from-yellow-400 to-yellow-300
+                               rounded-xl shadow-md">
+                    Apply Changes
+                </button>
+
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div id="delete-modal"
+     class="hidden fixed inset-0 z-50 flex items-center justify-center">
+
+    <!-- Background -->
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+
+    <!-- Modal Box -->
+    <div id="delete-box"
+         class="relative w-full max-w-md mx-4 p-6 rounded-3xl
+                bg-white dark:bg-zinc-900
+                border border-red-500/40
+                shadow-2xl
+                opacity-0 scale-90 transition-all duration-300">
+
+        <!-- Header -->
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 flex items-center justify-center rounded-full bg-red-500/20">
+                ⚠
+            </div>
+            <h3 class="text-xl font-bold text-red-600">
+                Delete Account
+            </h3>
+        </div>
+
+        <!-- Message -->
+        <p class="text-sm text-zinc-600 dark:text-zinc-300 mb-4">
+            This action is <span class="text-red-500 font-semibold">permanent</span>.
+        </p>
+
+        <!-- Buttons -->
+        <div class="flex gap-3">
+
+            <button onclick="closeDeleteModal()"
+                    class="w-1/2 py-2 rounded-lg text-sm font-semibold
+                           border border-zinc-300 dark:border-zinc-700">
+                Cancel
+            </button>
+
+            <button onclick="confirmDelete()"
+                    class="w-1/2 py-2 rounded-lg text-sm font-semibold text-white
+                           bg-red-500 hover:bg-red-600">
+                Delete
+            </button>
+
+        </div>
+
+        <p id="deleteError" class="text-xs text-red-500 text-center mt-3 hidden"></p>
+
+    </div>
+</div>
+
+<!-- DELETE DRIVER CONFIRM MODAL -->
+<div id="delete-modal1"
+     class="hidden fixed inset-0 z-50 flex items-center justify-center">
+
+    <!-- Background -->
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+
+    <!-- Modal Box -->
+    <div id="delete-box1"
+         class="relative w-full max-w-md mx-4 p-6 rounded-3xl
+                bg-white dark:bg-zinc-900
+                border border-red-500/40
+                shadow-2xl
+                opacity-0 scale-90 transition-all duration-300">
+
+        <!-- Header -->
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 flex items-center justify-center rounded-full bg-red-500/20">
+                ⚠
+            </div>
+            <h3 class="text-xl font-bold text-red-600">
+                Delete Account
+            </h3>
+        </div>
+
+        <!-- Message -->
+        <p class="text-sm text-zinc-600 dark:text-zinc-300 mb-4">
+            This action is <span class="text-red-500 font-semibold">permanantly delete your driver Acoount</span>
+        </p>
+
+        <!-- Buttons -->
+        <div class="flex gap-3">
+
+            <button onclick="closeDriverDeleteModal()"
+                    class="w-1/2 py-2 rounded-lg text-sm font-semibold
+                           border border-zinc-300 dark:border-zinc-700">
+                Cancel
+            </button>
+
+            <button onclick="confirmDriverDelete()"
+                    class="w-1/2 py-2 rounded-lg text-sm font-semibold text-white
+                           bg-red-500 hover:bg-red-600">
+                Delete
+            </button>
+
+        </div>
+
+        <p id="deleteError1" class="text-xs text-red-500 text-center mt-3 hidden"></p>
+
+    </div>
+</div>
+<script>
+    function previewFile(input, previewId, wrapperId) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const labelKey = wrapperId.replace('wrap-', '');
+    const label = document.getElementById('label-' + labelKey);
+
+    if (label) {
+        label.innerHTML = `
+            <div class="text-center">
+                <p class="text-xs text-yellow-400 font-semibold">Uploaded successfully</p>
+                <p class="text-xs text-zinc-300 mt-1">${file.name}</p>
+            </div>`;
+    }
+    }
+
+    document.querySelectorAll('.file-drop').forEach(el => {
+        el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('dragover'); });
+        el.addEventListener('dragleave', () => el.classList.remove('dragover'));
+        el.addEventListener('drop', e => {
+            e.preventDefault();
+            el.classList.remove('dragover');
+            const input = el.querySelector('input[type="file"]');
+            input.files = e.dataTransfer.files;
+            input.dispatchEvent(new Event('change'));
+        });
+    });</script>
+<script src="/Js/userprofile.js"></script>
+<script src="/Js/driverprofile.js"></script>
+<script src="/Js/default.js"></script>
+</body>
+
+</html>

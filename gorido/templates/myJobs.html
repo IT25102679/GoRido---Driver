@@ -1,0 +1,1093 @@
+<!doctype html>
+
+<html lang="en" class="dark" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>My Jobs | GoRido</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+
+        tailwind.config = { darkMode: "class" };
+
+    </script>
+
+    <link
+            href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap"
+            rel="stylesheet" />
+
+    <style>
+        h1,
+
+        h2,
+
+        h3,
+
+        h4,
+
+        .brand {
+
+          font-family: "Outfit", sans-serif;
+
+        }
+
+
+
+        .glass {
+
+          background: rgba(15, 23, 42, 0.72);
+
+          backdrop-filter: blur(18px);
+
+        }
+
+
+
+        .card-hover {
+
+          transition: 0.25s ease;
+
+        }
+
+
+
+        .card-hover:hover {
+
+          transform: tranzincY(-4px);
+
+        }
+
+    </style>
+
+</head>
+
+<body
+        class="min-h-screen bg-zinc-100 dark:bg-zinc-950 text-zinc-800 dark:text-white">
+
+<div class="min-h-screen flex">
+
+    <!-- Sidebar -->
+
+    <div th:replace="~{sidebar :: sidebar}"></div>
+
+    <!-- Main Area -->
+
+    <main class="flex-1 lg:ml-72">
+
+        <!-- Top Bar -->
+
+        <header
+                class="sticky top-0 z-40 bg-white/80 dark:bg-zinc-950/80 backdrop-blur border-b border-zinc-200 dark:border-zinc-800">
+
+            <div
+                    class="px-5 sm:px-8 py-4 flex items-center justify-between">
+
+                <div>
+
+                    <h2 class="text-xl sm:text-2xl font-bold">My
+                        Jobs</h2>
+
+                    <p
+                            class="text-sm text-zinc-500 dark:text-zinc-400">
+                        Manage your upcoming events
+                    </p>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <section class="p-5 sm:p-8 space-y-8">
+
+            <div class="flex items-center justify-between w-full">
+
+                <!-- Breadcrumbs (LEFT) -->
+                <nav
+                        class="text-xs text-zinc-400 dark:text-zinc-500 flex items-center flex-wrap">
+                    <a href="/userprofile"
+                       class="hover:text-yellow-400 transition">Home</a>
+
+                    <span class="mx-2">/</span>
+
+                    <span
+                            class="text-zinc-300 dark:text-zinc-200 font-medium">
+                                My Jobs
+                            </span>
+                </nav>
+
+            </div>
+
+            <!-- Recent Rides -->
+
+            <div
+                    class="bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-lg border border-zinc-200 dark:border-zinc-950 space-y-6">
+
+                <div class="bg-zinc-950 text-white p-6">
+
+                    <div
+                            class="flex items-center gap-3 mb-8 bg-zinc-900/80 p-2 rounded-full border border-zinc-800 w-fit mt-5">
+
+                        <!-- TODAY -->
+                        <button
+                                onclick="showBookingTab('today-bookings', this)"
+                                class="booking-tab-btn
+           bg-white text-zinc-950 shadow-lg
+           flex items-center gap-2
+           px-6 py-3 rounded-full
+           text-sm font-semibold
+           transition-all duration-200">
+
+                                    <span
+                                            class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+
+                            <span>Today</span>
+
+                        </button>
+
+                        <!-- UPCOMING -->
+                        <button
+                                onclick="showBookingTab('upcoming-bookings', this)"
+                                class="booking-tab-btn
+           text-zinc-400
+           flex items-center gap-2
+           px-6 py-3 rounded-full
+           text-sm font-semibold
+           transition-all duration-200">
+
+                                    <span
+                                            class="w-2.5 h-2.5 rounded-full bg-yellow-400"></span>
+
+                            <span>Upcoming</span>
+
+                        </button>
+
+                        <button
+                                onclick="showBookingTab('expired-bookings', this)"
+                                class="booking-tab-btn
+           text-zinc-400
+           flex items-center gap-2
+           px-6 py-3 rounded-full
+           text-sm font-semibold
+           transition-all duration-200">
+
+                                    <span
+                                            class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+
+                            <span>Expired</span>
+
+                        </button>
+
+                    </div>
+
+                    <!-- TODAY HIRES -->
+                    <div id="today-bookings" class="booking-section mb-10 mt-5">
+
+                        <div
+                                class="flex items-center justify-between mb-5">
+
+                            <div>
+
+                                <h2 class="text-2xl font-bold mt-1">
+                                    Today Hires
+                                </h2>
+                            </div>
+
+                        </div>
+                        <div th:if="${#lists.isEmpty(todayHires)}"
+                             class="relative bg-zinc-950 border border-zinc-700 rounded-3xl p-10 shadow-lg text-center max-w-md mx-auto">
+
+                            <!-- GLOW -->
+                            <div
+                                    class="absolute -top-10 -right-10 w-40 h-40 bg-blue-500/10 blur-3xl rounded-full"></div>
+
+                            <!-- ICON -->
+                            <div class="flex justify-center mb-5">
+                                <div
+                                        class="w-16 h-16 flex items-center justify-center rounded-2xl bg-zinc-800 border border-zinc-700">
+
+                                    <!-- Clock / Calendar Icon -->
+                                    <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            class="w-8 h-8 text-zinc-400"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                            stroke-width="1.5">
+
+                                        <path stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              d="M8 7V3m8 4V3m-9 8h10m2 0v9a2 2 0 01-2 2H7a2 2 0 01-2-2v-9m14 0H5" />
+
+                                    </svg>
+
+                                </div>
+                            </div>
+
+                            <!-- TITLE -->
+                            <p class="text-white text-lg font-semibold">
+                                No Today Hires
+                            </p>
+
+                            <!-- DESCRIPTION -->
+                            <p class="text-zinc-400 text-sm mt-2">
+                                There are no bookings scheduled for
+                                today yet.
+                            </p>
+
+                        </div>
+
+                        <div
+                                class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+                            <div th:each="tHires : ${todayHires}"
+                                 class="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden">
+
+                                <div class="p-5">
+
+                                    <div
+                                            class="flex items-center justify-between">
+
+                                                <span
+                                                        th:text="${tHires.hireStatus.name}"
+                                                        class="px-3 py-1 rounded-full text-[10px]
+                                 bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                                    Assigned
+                                                </span>
+
+                                        <p
+                                                th:text="${#dates.format(tHires.requested_at, 'hh:mm a')}"
+                                                class="text-xs text-zinc-400">
+                                        </p>
+
+                                    </div>
+
+                                    <div
+                                            class="flex items-center gap-3 mt-5">
+
+                                        <div
+                                                class="w-12 h-12 rounded-2xl bg-zinc-800 flex items-center justify-center font-semibold uppercase">
+
+                                                    <span
+                                                            th:text="${#strings.substring(tHires.user.first_name,0,1)}"></span>
+                                            <span
+                                                    th:text="${#strings.substring(tHires.user.last_name,0,1)}"></span>
+
+                                        </div>
+
+                                        <div>
+                                            <p class="font-semibold">
+                                                        <span
+                                                                th:text="${tHires.user.first_name}"></span>
+                                                <span
+                                                        th:text="${tHires.user.last_name}"></span>
+                                            </p>
+
+                                            <p
+                                                    th:text="${tHires.user.mobile_number}"
+                                                    class="text-xs text-zinc-400">
+                                            </p>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="mt-6 flex gap-4">
+
+                                        <div
+                                                class="flex flex-col items-center">
+
+                                            <div
+                                                    class="w-3 h-3 rounded-full bg-green-500"></div>
+
+                                            <div
+                                                    class="w-[2px] h-14 bg-zinc-700"></div>
+
+                                            <div
+                                                    class="w-3 h-3 rounded-full bg-red-500"></div>
+
+                                        </div>
+
+                                        <div class="flex-1">
+
+                                            <div>
+                                                <p
+                                                        class="text-[10px] uppercase text-zinc-500">
+                                                    Pickup
+                                                </p>
+
+                                                <p
+                                                        th:text="${tHires.pickup_location}"
+                                                        class="text-sm mt-1">
+                                                    Colombo City
+                                                </p>
+                                            </div>
+
+                                            <div class="mt-4">
+                                                <p
+                                                        class="text-[10px] uppercase text-zinc-500">
+                                                    Destination
+                                                </p>
+
+                                                <p
+                                                        th:text="${tHires.drop_location}"
+                                                        class="text-sm mt-1 font-medium">
+                                                    Airport
+                                                </p>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div
+                                            class="grid grid-cols-2 gap-3 mt-6">
+
+                                        <div
+                                                class="bg-zinc-950 border border-zinc-800 rounded-2xl p-3">
+
+                                            <p
+                                                    class="text-[10px] text-zinc-500 uppercase">
+                                                Date
+                                            </p>
+
+                                            <p
+                                                    th:text="${#temporals.format(tHires.starting_at, 'dd MMM yyyy')}"
+                                                    class="text-sm font-semibold mt-1">
+                                            </p>
+
+                                        </div>
+
+                                        <div
+                                                class="bg-zinc-950 border border-zinc-800 rounded-2xl p-3">
+
+                                            <p
+                                                    class="text-[10px] text-zinc-500 uppercase">
+                                                Time
+                                            </p>
+
+                                            <p
+                                                    th:text="${#temporals.format(tHires.starting_at, 'hh:mm a')}"
+                                                    class="text-sm font-semibold mt-1">
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div
+                                            class="grid grid-cols-2 gap-3 mt-6">
+
+                                        <div
+                                                class="bg-zinc-950 border border-zinc-800 rounded-2xl p-3">
+
+                                            <p
+                                                    class="text-[10px] text-zinc-500 uppercase">
+                                                Vehicle type
+                                            </p>
+
+                                            <p
+                                                    th:text="${tHires.vehicleType.name}"
+                                                    class="text-sm font-semibold mt-1">
+                                            </p>
+
+                                        </div>
+
+                                        <div
+                                                class="bg-zinc-950 border border-zinc-800 rounded-2xl p-3">
+
+                                            <p
+                                                    class="text-[10px] text-zinc-500 uppercase">
+                                                Payment type
+                                            </p>
+
+                                            <p
+                                                    th:text="${tHires.payment.paymentType.name}"
+                                                    class="text-sm font-semibold mt-1">
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div
+                                            class="grid grid-cols-2 gap-3 mt-6">
+
+                                        <div
+                                                class="bg-zinc-950 border border-zinc-800 rounded-2xl p-3">
+
+                                            <p
+                                                    class="text-[10px] text-zinc-500 uppercase">
+                                                Distance
+                                            </p>
+
+                                            <p
+                                                    class="text-sm font-semibold mt-1">
+                                                        <span
+                                                                th:text="${tHires.distance}"></span>
+                                                km
+                                            </p>
+
+                                        </div>
+
+                                        <div
+                                                class="bg-zinc-950 border border-zinc-800 rounded-2xl p-3">
+
+                                            <p
+                                                    class="text-[10px] text-zinc-500 uppercase">
+                                                Fare
+                                            </p>
+
+                                            <p
+                                                    class="text-sm font-semibold mt-1 text-emerald-400">
+                                                Rs. <span
+                                                    th:text="${tHires.total_fare}"></span>
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="mt-6">
+                                        <button
+                                                th:attr="data-id=${tHires.id}"
+                                                onclick="viewRoute(this)"
+                                                class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl
+       bg-blue-600 hover:bg-blue-500 transition-all duration-200
+       text-sm font-semibold text-white">
+
+                                            <i
+                                                    class="fa-solid fa-route"></i>
+                                            View Route
+
+                                        </button>
+
+                                        <button
+                                                th:if="${tHires.hireStatus.id != 5
+          and tHires.payment != null}"
+                                                th:attr="data-hire-id=${tHires.id}"
+                                                onclick="endHire(this)"
+                                                th:disabled="${#temporals.format(tHires.starting_at, 'HH:mm')
+                   > #temporals.format(now, 'HH:mm')}"
+                                                th:classappend="${#temporals.format(tHires.starting_at, 'HH:mm')
+                      > #temporals.format(now, 'HH:mm')}
+        ? ' bg-red-300 border-red-300 cursor-not-allowed opacity-60'
+        : ' bg-red-600 hover:bg-red-700 border-red-500 text-white'"
+                                                class="w-full mt-2 py-3 rounded-2xl
+           border
+           font-semibold text-sm
+           transition-all duration-200">
+
+                                            End Hire
+
+                                        </button>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div id="upcoming-bookings" class="booking-section mb-10 hidden">
+
+                        <div
+                                class="flex items-center justify-between mb-5">
+
+                            <div>
+
+                                <h2 class="text-2xl font-bold mt-1">
+                                    Upcoming Bookings
+                                </h2>
+                            </div>
+
+                        </div>
+
+                        <div th:if="${#lists.isEmpty(hires)}"
+                             class="relative bg-zinc-950 border border-zinc-700 rounded-3xl p-10 shadow-lg text-center max-w-md mx-auto mt-6">
+
+                            <!-- GLOW -->
+                            <div
+                                    class="absolute -top-10 -right-10 w-40 h-40 bg-purple-500/10 blur-3xl rounded-full"></div>
+
+                            <!-- ICON -->
+                            <div class="flex justify-center mb-5">
+                                <div
+                                        class="w-16 h-16 flex items-center justify-center rounded-2xl bg-zinc-800 border border-zinc-700">
+
+                                    <!-- Calendar / Schedule Icon -->
+                                    <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            class="w-8 h-8 text-zinc-400"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                            stroke-width="1.5">
+
+                                        <path stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              d="M8 7V3m8 4V3m-9 8h10m-11 10h12a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+
+                                    </svg>
+
+                                </div>
+                            </div>
+
+                            <!-- TITLE -->
+                            <p class="text-white text-lg font-semibold">
+                                No Upcoming Bookings
+                            </p>
+
+                            <!-- DESCRIPTION -->
+                            <p class="text-zinc-400 text-sm mt-2">
+                                You don’t have any scheduled rides yet.
+                                New bookings will appear here.
+                            </p>
+
+                        </div>
+
+                        <div
+                                class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+                            <!-- DUPLICATE CARD -->
+                            <div th:each="h : ${hires}"
+                                 class="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden">
+
+                                <div class="p-5">
+
+                                    <div
+                                            class="flex items-center justify-between">
+
+                                                <span
+                                                        th:text="${h.hireStatus.name}"
+                                                        class="px-3 py-1 rounded-full text-[10px]
+                                 bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                                </span>
+
+                                        <p
+                                                th:text="${#dates.format(h.requested_at, 'hh:mm a')}"
+                                                class="text-xs text-zinc-400">
+                                        </p>
+
+                                    </div>
+
+                                    <div
+                                            class="flex items-center gap-3 mt-5">
+
+                                        <div
+                                                class="w-12 h-12 rounded-2xl bg-zinc-800 flex items-center justify-center font-semibold uppercase">
+
+                                                    <span
+                                                            th:text="${#strings.substring(h.user.first_name,0,1)}"></span>
+                                            <span
+                                                    th:text="${#strings.substring(h.user.last_name,0,1)}"></span>
+
+                                        </div>
+
+                                        <div>
+                                            <p class="font-semibold">
+                                                        <span
+                                                                th:text="${h.user.first_name}"></span>
+                                                <span
+                                                        th:text="${h.user.last_name}"></span>
+                                            </p>
+
+                                            <p
+                                                    th:text="${h.user.mobile_number}"
+                                                    class="text-xs text-zinc-400">
+                                            </p>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="mt-6 flex gap-4">
+
+                                        <div
+                                                class="flex flex-col items-center">
+
+                                            <div
+                                                    class="w-3 h-3 rounded-full bg-green-500"></div>
+
+                                            <div
+                                                    class="w-[2px] h-14 bg-zinc-700"></div>
+
+                                            <div
+                                                    class="w-3 h-3 rounded-full bg-red-500"></div>
+
+                                        </div>
+
+                                        <div class="flex-1">
+
+                                            <div>
+                                                <p
+                                                        class="text-[10px] uppercase text-zinc-500">
+                                                    Pickup
+                                                </p>
+
+                                                <p
+                                                        th:text="${h.pickup_location}"
+                                                        class="text-sm mt-1">
+                                                    Colombo City
+                                                </p>
+                                            </div>
+
+                                            <div class="mt-4">
+                                                <p
+                                                        class="text-[10px] uppercase text-zinc-500">
+                                                    Destination
+                                                </p>
+
+                                                <p
+                                                        th:text="${h.drop_location}"
+                                                        class="text-sm mt-1 font-medium">
+                                                    Airport
+                                                </p>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div
+                                            class="grid grid-cols-2 gap-3 mt-6">
+
+                                        <div
+                                                class="bg-zinc-950 border border-zinc-800 rounded-2xl p-3">
+
+                                            <p
+                                                    class="text-[10px] text-zinc-500 uppercase">
+                                                Date
+                                            </p>
+
+                                            <p
+                                                    th:text="${#temporals.format(h.starting_at, 'dd MMM yyyy')}"
+                                                    class="text-sm font-semibold mt-1">
+                                            </p>
+
+                                        </div>
+
+                                        <div
+                                                class="bg-zinc-950 border border-zinc-800 rounded-2xl p-3">
+
+                                            <p
+                                                    class="text-[10px] text-zinc-500 uppercase">
+                                                Time
+                                            </p>
+
+                                            <p
+                                                    th:text="${#temporals.format(h.starting_at, 'hh:mm a')}"
+                                                    class="text-sm font-semibold mt-1">
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div
+                                            class="grid grid-cols-2 gap-3 mt-6">
+
+                                        <div
+                                                class="bg-zinc-950 border border-zinc-800 rounded-2xl p-3">
+
+                                            <p
+                                                    class="text-[10px] text-zinc-500 uppercase">
+                                                Vehicle type
+                                            </p>
+
+                                            <p
+                                                    th:text="${h.vehicleType.name}"
+                                                    class="text-sm font-semibold mt-1">
+                                            </p>
+
+                                        </div>
+
+                                        <div
+                                                class="bg-zinc-950 border border-zinc-800 rounded-2xl p-3">
+
+                                            <p
+                                                    class="text-[10px] text-zinc-500 uppercase">
+                                                Payment type
+                                            </p>
+
+                                            <p
+                                                    th:text="${h.payment.paymentType.name}"
+                                                    class="text-sm font-semibold mt-1">
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div
+                                            class="grid grid-cols-2 gap-3 mt-6">
+
+                                        <div
+                                                class="bg-zinc-950 border border-zinc-800 rounded-2xl p-3">
+
+                                            <p
+                                                    class="text-[10px] text-zinc-500 uppercase">
+                                                Distance
+                                            </p>
+
+                                            <p
+                                                    class="text-sm font-semibold mt-1">
+                                                        <span
+                                                                th:text="${h.distance}"></span>
+                                                km
+                                            </p>
+
+                                        </div>
+
+                                        <div
+                                                class="bg-zinc-950 border border-zinc-800 rounded-2xl p-3">
+
+                                            <p
+                                                    class="text-[10px] text-zinc-500 uppercase">
+                                                Fare
+                                            </p>
+
+                                            <p
+                                                    class="text-sm font-semibold mt-1 text-emerald-400">
+                                                Rs. <span
+                                                    th:text="${h.total_fare}"></span>
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="mt-6">
+                                        <button
+                                                th:attr="data-id=${h.id}"
+                                                onclick="viewRoute(this)"
+                                                class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl
+       bg-blue-600 hover:bg-blue-500 transition-all duration-200
+       text-sm font-semibold text-white">
+
+                                            <i
+                                                    class="fa-solid fa-route"></i>
+                                            View Route
+
+                                        </button>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div id="expired-bookings" class="booking-section mb-10 hidden">
+
+                        <div
+                                class="flex items-center justify-between mb-5">
+
+                            <div>
+
+                                <h2 class="text-2xl font-bold mt-1">
+                                    Expired Bookings
+                                </h2>
+                            </div>
+
+                        </div>
+
+                        <div th:if="${#lists.isEmpty(oldHires)}"
+                             class="relative bg-zinc-950 border border-zinc-700 rounded-3xl p-10 shadow-lg text-center max-w-md mx-auto mt-6">
+
+                            <!-- GLOW -->
+                            <div
+                                    class="absolute -top-10 -right-10 w-40 h-40 bg-purple-500/10 blur-3xl rounded-full"></div>
+
+                            <!-- ICON -->
+                            <div class="flex justify-center mb-5">
+                                <div
+                                        class="w-16 h-16 flex items-center justify-center rounded-2xl bg-zinc-800 border border-zinc-700">
+
+                                    <!-- Calendar / Schedule Icon -->
+                                    <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            class="w-8 h-8 text-zinc-400"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                            stroke-width="1.5">
+
+                                        <path stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              d="M8 7V3m8 4V3m-9 8h10m-11 10h12a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+
+                                    </svg>
+
+                                </div>
+                            </div>
+
+                            <!-- TITLE -->
+                            <p class="text-white text-lg font-semibold">
+                                No Past Trips
+                            </p>
+
+                            <!-- DESCRIPTION -->
+                            <p class="text-zinc-400 text-sm mt-2">
+                                You don’t have any completed rides yet.
+                                Once trips are finished, they will
+                                appear here.
+                            </p>
+
+                        </div>
+
+                        <div
+                                class="grid grid-cols-1 lg:grid-cols-3  gap-5">
+
+                            <!-- DUPLICATE CARD -->
+                            <div th:each="oHires : ${oldHires}"
+                                 class="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden">
+
+                                <div class="p-5">
+
+                                    <div
+                                            class="flex items-center justify-between">
+
+                                                <span
+                                                        th:text="${oHires.hireStatus.name}"
+                                                        class="px-3 py-1 rounded-full text-[10px]
+                                 bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                                </span>
+
+                                        <p
+                                                th:text="${#dates.format(oHires.requested_at, 'hh:mm a')}"
+                                                class="text-xs text-zinc-400">
+                                        </p>
+
+                                    </div>
+
+                                    <div
+                                            class="flex items-center gap-3 mt-5">
+
+                                        <div
+                                                class="w-12 h-12 rounded-2xl bg-zinc-800 flex items-center justify-center font-semibold uppercase">
+
+                                                    <span
+                                                            th:text="${#strings.substring(oHires.user.first_name,0,1)}"></span>
+                                            <span
+                                                    th:text="${#strings.substring(oHires.user.last_name,0,1)}"></span>
+
+                                        </div>
+
+                                        <div>
+                                            <p class="font-semibold">
+                                                        <span
+                                                                th:text="${oHires.user.first_name}"></span>
+                                                <span
+                                                        th:text="${oHires.user.last_name}"></span>
+                                            </p>
+
+                                            <p
+                                                    th:text="${oHires.user.mobile_number}"
+                                                    class="text-xs text-zinc-400">
+                                            </p>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="mt-6 flex gap-4">
+
+                                        <div
+                                                class="flex flex-col items-center">
+
+                                            <div
+                                                    class="w-3 h-3 rounded-full bg-green-500"></div>
+
+                                            <div
+                                                    class="w-[2px] h-14 bg-zinc-700"></div>
+
+                                            <div
+                                                    class="w-3 h-3 rounded-full bg-red-500"></div>
+
+                                        </div>
+
+                                        <div class="flex-1">
+
+                                            <div>
+                                                <p
+                                                        class="text-[10px] uppercase text-zinc-500">
+                                                    Pickup
+                                                </p>
+
+                                                <p
+                                                        th:text="${oHires.pickup_location}"
+                                                        class="text-sm mt-1">
+                                                    Colombo City
+                                                </p>
+                                            </div>
+
+                                            <div class="mt-4">
+                                                <p
+                                                        class="text-[10px] uppercase text-zinc-500">
+                                                    Destination
+                                                </p>
+
+                                                <p
+                                                        th:text="${oHires.drop_location}"
+                                                        class="text-sm mt-1 font-medium">
+                                                    Airport
+                                                </p>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div
+                                            class="grid grid-cols-2 gap-3 mt-6">
+
+                                        <div
+                                                class="bg-zinc-950 border border-zinc-800 rounded-2xl p-3">
+
+                                            <p
+                                                    class="text-[10px] text-zinc-500 uppercase">
+                                                Date
+                                            </p>
+
+                                            <p
+                                                    th:text="${#temporals.format(oHires.starting_at, 'dd MMM yyyy')}"
+                                                    class="text-sm font-semibold mt-1">
+                                            </p>
+
+                                        </div>
+
+                                        <div
+                                                class="bg-zinc-950 border border-zinc-800 rounded-2xl p-3">
+
+                                            <p
+                                                    class="text-[10px] text-zinc-500 uppercase">
+                                                Time
+                                            </p>
+
+                                            <p
+                                                    th:text="${#temporals.format(oHires.starting_at, 'hh:mm a')}"
+                                                    class="text-sm font-semibold mt-1">
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div
+                                            class="grid grid-cols-2 gap-3 mt-6">
+
+                                        <div
+                                                class="bg-zinc-950 border border-zinc-800 rounded-2xl p-3">
+
+                                            <p
+                                                    class="text-[10px] text-zinc-500 uppercase">
+                                                Vehicle type
+                                            </p>
+
+                                            <p
+                                                    th:text="${oHires.vehicleType.name}"
+                                                    class="text-sm font-semibold mt-1">
+                                            </p>
+
+                                        </div>
+
+                                        <div
+                                                class="bg-zinc-950 border border-zinc-800 rounded-2xl p-3">
+
+                                            <p
+                                                    class="text-[10px] text-zinc-500 uppercase">
+                                                Payment type
+                                            </p>
+
+                                            <p
+                                                    th:text="${oHires.payment.paymentType.name}"
+                                                    class="text-sm font-semibold mt-1">
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div
+                                            class="grid grid-cols-2 gap-3 mt-6">
+
+                                        <div
+                                                class="bg-zinc-950 border border-zinc-800 rounded-2xl p-3">
+
+                                            <p
+                                                    class="text-[10px] text-zinc-500 uppercase">
+                                                Distance
+                                            </p>
+
+                                            <p
+                                                    class="text-sm font-semibold mt-1">
+                                                        <span
+                                                                th:text="${oHires.distance}"></span>
+                                                km
+                                            </p>
+
+                                        </div>
+
+                                        <div
+                                                class="bg-zinc-950 border border-zinc-800 rounded-2xl p-3">
+
+                                            <p
+                                                    class="text-[10px] text-zinc-500 uppercase">
+                                                Fare
+                                            </p>
+
+                                            <p
+                                                    class="text-sm font-semibold mt-1 text-emerald-400">
+                                                Rs. <span
+                                                    th:text="${oHires.total_fare}"></span>
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="mt-6">
+                                        <button
+                                                th:attr="data-id=${oHires.id}"
+                                                onclick="viewRoute(this)"
+                                                class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl
+       bg-blue-600 hover:bg-blue-500 transition-all duration-200
+       text-sm font-semibold text-white">
+
+                                            <i
+                                                    class="fa-solid fa-route"></i>
+                                            View Route
+
+                                        </button>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+<script src="/Js/myJobs.js"></script>
+<script src="/Js/default.js"></script>
+</body>
+
+</html>

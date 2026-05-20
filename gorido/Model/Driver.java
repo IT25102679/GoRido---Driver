@@ -31,10 +31,6 @@ public class Driver{
     private Status statusId;
 
     @ManyToOne
-    @JoinColumn(name = "active_id")
-    private Active activeId;
-
-    @ManyToOne
     @JoinColumn(name = "district_id")
     private District district;
 
@@ -116,14 +112,6 @@ public class Driver{
 
     public Status getStatusId() {
         return statusId;
-    }
-
-    public void setActiveId(Active activeId) {
-        this.activeId = activeId;
-    }
-
-    public Active getActiveId() {
-        return activeId;
     }
 
     public void setDistrict(District district) {

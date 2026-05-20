@@ -31,10 +31,8 @@ public class DriverController {
     public String profile(Model model, HttpSession session) {
         return driverService.driverProfile(model, session);
     }
-
-    @RestController
-    public class driverRegistrationController{
         @GetMapping("/driver/loadUser")
+        @ResponseBody
         public String loadUser(HttpSession session){
             return driverService.loadUser(session);
         }
@@ -46,24 +44,20 @@ public class DriverController {
         }
 
         @PostMapping("/driver/register")
+        @ResponseBody
         public String driverRegister(@ModelAttribute DriverRegisterRequest request){
             return driverService.registerDriver(request);
         }
 
-    }
-
-    @RestController
-    public class delDriver {
         @GetMapping("/delete/driver")
+        @ResponseBody
         public String deleteDriver(HttpSession session) {
             return driverService.deleteDriver(session);
         }
-    }
 
     @ResponseBody
     @PostMapping("/updatelicense")
     public String updatelicense(@RequestParam LocalDate license_exp_date, @RequestParam MultipartFile licenseImage, HttpSession session){
         return driverService.updatelicense(license_exp_date, licenseImage, session);
     }
-
 }

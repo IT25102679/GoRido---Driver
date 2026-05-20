@@ -21,32 +21,17 @@ import java.util.Optional;
 public class DriverServiceImpl implements DriverService {
     private final UserRepository userRepository;
     private final StatusRepository statusRepository;
-    private final ActiveRepository activeRepository;
     private final DriverRepository driverRepository;
-    private final VehicleTypeRepository vehicleTypeRepository;
-    private final VehicleColorRepository vehicleColorRepository;
-    private final VehicleBrandRepository vehicleBrandRepository;
-    private final TypeHasBrandRepository typeHasBrandRepository;
-    private final VehicleRepository vehicleRepository;
     private final TypeRepository typeRepository;
     private final DistrictRepository districtRepository;
     private final HireRepository hireRepository;
 
-    public DriverServiceImpl(UserRepository userRepository, StatusRepository statusRepository, ActiveRepository activeRepository,
-                             VehicleTypeRepository vehicleTypeRepository,
-                             VehicleColorRepository vehicleColorRepository, VehicleBrandRepository vehicleBrandRepository,
-                             TypeHasBrandRepository typeHasBrandRepository, DriverRepository driverRepository,
-                             VehicleRepository vehicleRepository, TypeRepository typeRepository, DistrictRepository districtRepository,
+    public DriverServiceImpl(UserRepository userRepository, StatusRepository statusRepository, DriverRepository driverRepository,
+                             TypeRepository typeRepository, DistrictRepository districtRepository,
                              HireRepository hireRepository){
         this.userRepository = userRepository;
-        this.vehicleBrandRepository = vehicleBrandRepository;
-        this.vehicleColorRepository = vehicleColorRepository;
-        this.vehicleTypeRepository = vehicleTypeRepository;
-        this.typeHasBrandRepository = typeHasBrandRepository;
         this.driverRepository = driverRepository;
         this.statusRepository = statusRepository;
-        this.activeRepository = activeRepository;
-        this.vehicleRepository = vehicleRepository;
         this.typeRepository = typeRepository;
         this.districtRepository = districtRepository;
         this.hireRepository = hireRepository;
@@ -112,11 +97,6 @@ public class DriverServiceImpl implements DriverService {
             return "error: Status not found";
         }
 
-        Optional<Active> active = activeRepository.findById(1);
-        if (active.isEmpty()) {
-            return "error: Active status not found";
-        }
-
         Optional<District> district = districtRepository.findById(request.getDistrict());
         if (district.isEmpty()) {
             return "error: District not found";
@@ -125,7 +105,6 @@ public class DriverServiceImpl implements DriverService {
         driver.setDistrict(district.get());
         driver.setRegistered_date(LocalDate.now());
         driver.setStatusId(status.get());
-        driver.setActiveId(active.get());
         driverRepository.save(driver);
         userRepository.save(user);
 

@@ -180,7 +180,7 @@
                                     <span
                                             class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
 
-                            <span>Expired</span>
+                            <span>History</span>
 
                         </button>
 
@@ -256,10 +256,14 @@
 
                                                 <span
                                                         th:text="${tHires.hireStatus.name}"
-                                                        class="px-3 py-1 rounded-full text-[10px]
-                                 bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                                                    Assigned
-                                                </span>
+                                                        th:classappend="
+        ${tHires.hireStatus.id == 1} ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' :
+        (${tHires.hireStatus.id == 2} ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
+        (${tHires.hireStatus.id == 3} ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
+        (${tHires.hireStatus.id == 4} ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
+        'bg-gray-500/10 text-gray-400 border border-gray-500/20')))"
+                                                        class="px-3 py-1 rounded-full text-[10px]">
+</span>
 
                                         <p
                                                 th:text="${#dates.format(tHires.requested_at, 'hh:mm a')}"
@@ -567,9 +571,14 @@
 
                                                 <span
                                                         th:text="${h.hireStatus.name}"
-                                                        class="px-3 py-1 rounded-full text-[10px]
-                                 bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                                                </span>
+                                                        th:classappend="
+        ${h.hireStatus.id == 1} ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' :
+        (${h.hireStatus.id == 2} ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
+        (${h.hireStatus.id == 3} ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
+        (${h.hireStatus.id == 4} ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
+        'bg-gray-500/10 text-gray-400 border border-gray-500/20')))"
+                                                        class="px-3 py-1 rounded-full text-[10px]">
+</span>
 
                                         <p
                                                 th:text="${#dates.format(h.requested_at, 'hh:mm a')}"
@@ -793,8 +802,7 @@
 
                             <div>
 
-                                <h2 class="text-2xl font-bold mt-1">
-                                    Expired Bookings
+                                <h2 class="text-2xl font-bold mt-1">Booking History
                                 </h2>
                             </div>
 
@@ -858,9 +866,14 @@
 
                                                 <span
                                                         th:text="${oHires.hireStatus.name}"
-                                                        class="px-3 py-1 rounded-full text-[10px]
-                                 bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                                                </span>
+                                                        th:classappend="
+        ${oHires.hireStatus.id == 1} ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' :
+        (${oHires.hireStatus.id == 2} ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
+        (${oHires.hireStatus.id == 3} ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
+        (${oHires.hireStatus.id == 4} ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
+        'bg-gray-500/10 text-gray-400 border border-gray-500/20')))"
+                                                        class="px-3 py-1 rounded-full text-[10px]">
+</span>
 
                                         <p
                                                 th:text="${#dates.format(oHires.requested_at, 'hh:mm a')}"
